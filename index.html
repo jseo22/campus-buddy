@@ -21,7 +21,7 @@
     <a href="#features">
      주요 기능
     </a>
-    <a href="#demo">
+    <a href="#planner-demo">
      AI 미리보기
     </a>
     <button class="btn" data-cta="header">
@@ -107,7 +107,46 @@
      </div>
     </div>
    </section>
-   <section class="section" id="features">
+   
+<section class="workflow section" id="planner-demo">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow">✨ INTERACTIVE PREVIEW</span>
+      <h2>질문에서 일정까지, 한 번에 💜</h2>
+      <p class="sub">상황을 선택하면 버디가 답변하고 나만의 체크리스트와 플래너를 만들어줘요.</p>
+      <p class="demo-disclaimer">체험용 가상 일정입니다. 실제 연세대 공지·학사 규정 및 마감일이 아닙니다.</p>
+    </div>
+    <div class="scenario-bar" role="group" aria-label="체험 시나리오">
+      <button class="scenario active" data-scenario="leave">🌱 휴학 준비</button>
+      <button class="scenario" data-scenario="graduation">🎓 졸업 준비</button>
+      <button class="scenario" data-scenario="scholarship">💌 장학금 신청</button>
+    </div>
+    <div class="workspace">
+      <article class="work-card answer-card">
+        <span class="work-kicker">💬 버디의 답변</span>
+        <h3 id="flow-question"></h3>
+        <p id="flow-answer"></p>
+        <p class="fake-source">📎 출처: 데모 시나리오 (실제 공지 조회 아님)</p>
+        <button class="btn" id="generate-plan">✨ 내 할 일로 정리하기</button>
+      </article>
+      <article class="work-card task-card">
+        <div class="work-heading"><div><span class="work-kicker">📝 MY TO-DO</span><h3>나의 체크리스트</h3></div><span id="task-count" class="count-pill">0 / 0</span></div>
+        <p class="empty-hint" id="task-empty">왼쪽의 버튼을 눌러 할 일을 만들어봐!</p>
+        <div id="task-list" aria-live="polite"></div>
+        <button class="text-action" id="reset-tasks" type="button">체크리스트 초기화</button>
+      </article>
+      <article class="work-card calendar-card">
+        <div class="work-heading"><div><span class="work-kicker">🗓️ MY PLANNER</span><h3>나의 일정</h3></div><span id="calendar-title"></span></div>
+        <div class="calendar-controls"><button id="prev-month" aria-label="이전 달">‹</button><button id="today-month">이번 달</button><button id="next-month" aria-label="다음 달">›</button></div>
+        <div class="calendar-grid" id="calendar-grid" aria-label="일정 달력"></div>
+        <div class="calendar-events" id="calendar-events">체크리스트를 만들면 일정이 여기에 표시돼요.</div>
+        <button class="btn secondary" id="download-calendar" disabled>📅 캘린더 파일(.ics) 받기</button>
+        <p class="calendar-hint">다운로드한 .ics 파일을 Google Calendar 등에서 가져올 수 있어요. 계정에 자동으로 등록되지는 않습니다.</p>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="section" id="features">
     <div class="wrap">
      <div class="center">
       <span class="eyebrow">
@@ -222,6 +261,7 @@
     </div>
    </div>
   </div>
+  <script src="planner.js"></script>
   <script src="script.js">
   </script>
  </body>
