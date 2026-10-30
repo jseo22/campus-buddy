@@ -34,11 +34,19 @@
   }
   function ask(text) {
     addBubble(text,'user');
-    track('demo_question', {
-      category:answers.find(x=>x.match.test(text))?.match.source||'other'
-    });
-    const response=answers.find(x=>x.match.test(text))?.text||'좋은 질문이야! 🧸\n\n지금은 준비 중인 데모라 이 질문에 대한 실제 학교 정보를 검색할 수는 없어. 정식 서비스에서는 공식 학교 자료를 바탕으로 출처와 함께 답변할 예정이야.';
-    setTimeout(()=>addBubble(response,'bot'),350)
+    const scenario=window.CampusBuddyDemo?.match(text);
+    track('demo_question',{category:scenario||'other'});
+    const response=scenario ? window.CampusBuddyDemo.getAnswer(scenario) : '궁금한 질문이구나! 🧸\n\n지금은 휴학·졸업·장학금·수강신청에 대한 가상 체험을 제공하고 있어. 해당 주제로 질문하면 버디가 예시 답변과 플래너를 만들어줄게. 실제 학사 정보는 아직 조회하지 않아.';
+    setTimeout(()=>{
+      addBubble(response,'bot');
+      if(scenario){
+        const button=document.createElement('button');
+        button.className='chat-action';button.type='button';
+        button.textContent='✨ 이 답변으로 플래너 만들기 →';
+        button.addEventListener('click',()=>window.CampusBuddyDemo.makePlan(scenario));
+        messages.append(button);messages.scrollTop=messages.scrollHeight;
+      }
+    },350);
   }
   document.getElementById('chat-form').addEventListener('submit',e=> {
     e.preventDefault();

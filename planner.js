@@ -1,73 +1,46 @@
 (() => {
-  "use strict";
-  // Dates are deliberately relative and fictional; never present as official deadlines.
+  'use strict';
   const scenarios = {
-    leave: { question: "휴학 신청하려면 무엇을 준비해야 해?", answer: "휴학을 계획하고 있구나! 🌱\n학적 상태와 신청 가능 여부를 먼저 확인하고, 학사안내를 살펴본 다음 신청 절차를 진행하면 좋아. 아래 단계는 체험용 예시야.", steps: [["학적 상태 및 휴학 자격 확인", 2], ["공식 학사 공지 확인", 4], ["필요 서류 확인", 7], ["휴학 신청 절차 진행", 10]] },
-    graduation: { question: "졸업 준비는 무엇부터 시작해야 해?", answer: "졸업 요건은 입학 연도와 전공에 따라 달라져 🎓\n먼저 이수 현황을 점검하고 학과의 공식 요건과 대조해 보자. 아래 일정은 예시야.", steps: [["이수 학점 현황 확인", 1], ["전공·교양 필수 요건 점검", 3], ["학과 졸업 안내 확인", 6], ["미충족 요건 상담 문의", 9]] },
-    scholarship: { question: "장학금 신청은 어떻게 준비해?", answer: "장학금마다 자격과 서류가 달라 💌\n내게 해당하는 공지를 확인하고 서류를 준비해 보자. 아래 단계는 실제 신청 기간과 무관한 체험용 예시야.", steps: [["지원 가능한 장학 공지 찾기", 1], ["신청 자격 확인", 3], ["증빙 서류 준비", 5], ["장학금 신청서 제출", 8]] }
+    leave: {name:'휴학 준비', match:/휴학|복학|학적/, answer:'휴학을 준비하고 있구나! 🌱 먼저 학적 상태를 확인하고, 관련 공지를 살펴본 뒤 필요한 서류와 신청 절차를 점검하면 좋아.\n\n아래 일정은 실제 학사 일정이 아닌 체험용 예시야.', steps:[['학적 상태와 신청 가능 여부 확인',1],['휴학 관련 공지 확인',3],['필요 서류 준비',6],['신청 절차 점검',9]], documents:[['휴학 신청서 (예시)',4],['학적 상태 확인 자료 (예시)',6],['사유에 따른 증빙 서류 (해당 시·예시)',8]]},
+    graduation: {name:'졸업 준비',match:/졸업|학점|채플|전공/,answer:'졸업 준비는 이수 학점과 필수 요건을 차례로 확인하는 게 좋아 🎓\n\n버디가 가상의 점검 일정을 만들어줄게. 실제 졸업 요건은 공식 학과 안내를 확인해야 해.',steps:[['이수 학점 현황 확인',1],['전공·교양 필수 요건 점검',3],['졸업 관련 공지 확인',5],['미충족 요건 상담 문의',8]], documents:[['성적·이수 내역 확인 자료 (예시)',3],['졸업 요건 점검표 (예시)',5],['상담 요청 시 참고 자료 (예시)',7]]},
+    scholarship: {name:'장학금 신청',match:/장학|등록금|지원금/,answer:'장학금 신청을 준비하고 있구나! 💌 지원 가능한 공지를 확인하고, 자격과 제출 서류를 살펴보면 좋아.\n\n이 일정은 시연용으로 만든 가상 일정이야.',steps:[['지원 가능한 장학 공지 찾기',1],['신청 자격 확인',3],['증빙 서류 준비',5],['신청서 제출 절차 점검',7]], documents:[['장학금 신청서 (예시)',3],['재학·성적 증빙 자료 (예시)',5],['장학 종류별 자격 증빙 (해당 시·예시)',6]]},
+    course: {name:'수강신청 준비',match:/수강|강의|시간표/,answer:'수강신청을 준비한다면 수강편람과 이수 요건을 먼저 확인해 보자 📚\n\n아래 날짜는 실제 수강신청 기간과 무관한 예시야.',steps:[['수강편람 확인',1],['이수 요건 점검',2],['희망 강의 목록 작성',4],['수강신청 전 점검',6]], documents:[['수강 희망 과목 목록 (예시)',2],['학점·이수 요건 점검표 (예시)',4],['수강신청 관련 확인 자료 (예시)',5]]}
   };
-  const $ = (id) => document.getElementById(id);
-  const dateKey = (d) => [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
-  const addDays = (n) => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+n); return dateKey(d); };
-  const track = (event, detail={}) => { try { const a=JSON.parse(localStorage.getItem('campusBuddyEvents')||'[]'); a.push({event,detail,time:new Date().toISOString()}); localStorage.setItem('campusBuddyEvents',JSON.stringify(a.slice(-200))); } catch (_) {} };
-  let selected='leave';
-  let tasks=[];
-  let month=new Date(); month.setDate(1);
-  const storage='campusBuddyPlannerV2';
-  try { const saved=JSON.parse(localStorage.getItem(storage)||'null'); if(saved && scenarios[saved.selected] && Array.isArray(saved.tasks)) { selected=saved.selected; tasks=saved.tasks.filter(t=>typeof t.title==='string' && /^\d{4}-\d{2}-\d{2}$/.test(t.date)); } } catch (_) {}
-  const save=()=>localStorage.setItem(storage,JSON.stringify({selected,tasks}));
-  function renderScenario() {
-    document.querySelectorAll('[data-scenario]').forEach(b=>{ b.classList.toggle('active',b.dataset.scenario===selected); b.setAttribute('aria-pressed',String(b.dataset.scenario===selected)); });
-    $('flow-question').textContent=scenarios[selected].question;
-    $('flow-answer').textContent=scenarios[selected].answer;
+  const $=id=>document.getElementById(id);
+  const key=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  const plus=n=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return key(d);};
+  const store='campusBuddyInteractiveV2';
+  let state={scenario:null,tasks:[],documents:[],profile:{}},month=new Date();month.setDate(1);
+  try {const x=JSON.parse(localStorage.getItem(store)||'null');if(x && Array.isArray(x.tasks) && scenarios[x.scenario])state={scenario:x.scenario,tasks:x.tasks.filter(t=>typeof t.title==='string' && /^\d{4}-\d{2}-\d{2}$/.test(t.date)),documents:Array.isArray(x.documents)?x.documents.filter(d=>typeof d.title==='string'):scenarios[x.scenario].documents.map(title=>({title,done:false}))};}catch(e){}
+  const save=()=>localStorage.setItem(store,JSON.stringify(state));
+  function track(event,detail={}){try{const a=JSON.parse(localStorage.getItem('campusBuddyEvents')||'[]');a.push({event,detail,time:new Date().toISOString()});localStorage.setItem('campusBuddyEvents',JSON.stringify(a.slice(-200)));}catch(e){}}
+  function renderTasks(){const list=$('task-list');list.replaceChildren();$('task-empty').hidden=state.tasks.length>0;$('task-count').textContent=`${state.tasks.filter(t=>t.done).length} / ${state.tasks.length}`;
+    state.tasks.forEach((task,i)=>{const label=document.createElement('label');label.className='todo-row'+(task.done?' completed':'');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!task.done;cb.addEventListener('change',()=>{state.tasks[i].done=cb.checked;save();renderTasks();renderCalendar();track('todo_toggle',{scenario:state.scenario,done:cb.checked});});const wrap=document.createElement('span');const title=document.createElement('span');title.className='todo-name';title.textContent=task.title;const small=document.createElement('small');small.textContent='가상 예정일: '+task.date;wrap.append(title,small);label.append(cb,wrap);list.append(label);});$('download-calendar').disabled=!state.tasks.length;
   }
-  function renderTasks() {
-    $('task-list').replaceChildren();
-    $('task-empty').hidden=tasks.length>0;
-    $('task-count').textContent=`${tasks.filter(t=>t.done).length} / ${tasks.length}`;
-    tasks.forEach((task,i)=>{
-      const label=document.createElement('label'); label.className='todo-row'+(task.done?' completed':'');
-      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!task.done;
-      cb.addEventListener('change',()=>{tasks[i].done=cb.checked; save();renderTasks();track('todo_toggle',{done:cb.checked,scenario:selected});});
-      const wrap=document.createElement('span');
-      const name=document.createElement('span'); name.className='todo-name'; name.textContent=task.title;
-      const small=document.createElement('small');small.textContent=`예시 예정일: ${task.date}`;
-      wrap.append(name,small); label.append(cb,wrap); $('task-list').append(label);
+  function renderDocuments(){
+    const list=$('document-list');list.replaceChildren();
+    $('doc-empty').hidden=state.documents.length>0;
+    $('doc-count').textContent=`${state.documents.filter(d=>d.done).length} / ${state.documents.length}`;
+    state.documents.forEach((doc,i)=>{
+      const label=document.createElement('label');label.className='todo-row'+(doc.done?' completed':'');
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!doc.done;
+      cb.addEventListener('change',()=>{state.documents[i].done=cb.checked;save();renderDocuments();renderCalendar();track('document_toggle',{scenario:state.scenario,done:cb.checked});});
+      const wrap=document.createElement('span');const name=document.createElement('span');name.className='todo-name';name.textContent=doc.title;const due=document.createElement('small');due.textContent='가상 준비 기한: '+(doc.date||'미설정');wrap.append(name,due);label.append(cb,wrap);list.append(label);
     });
-    $('download-calendar').disabled=tasks.length===0;
   }
-  function renderCalendar() {
-    const year=month.getFullYear(),m=month.getMonth();
-    $('calendar-title').textContent=`${year}년 ${m+1}월`;
-    const grid=$('calendar-grid');grid.replaceChildren();
-    ['일','월','화','수','목','금','토'].forEach(s=>{const e=document.createElement('div');e.className='calendar-weekday';e.textContent=s;grid.append(e);});
-    const offset=new Date(year,m,1).getDay(); const days=new Date(year,m+1,0).getDate();
-    for(let i=0;i<offset+days;i++) {
-      const e=document.createElement('div');e.className='calendar-day';
-      if(i<offset){e.classList.add('muted');grid.append(e);continue;}
-      const day=i-offset+1; const key=dateKey(new Date(year,m,day));e.textContent=String(day);
-      if(key===dateKey(new Date()))e.classList.add('today');
-      tasks.filter(t=>t.date===key).forEach(t=>{const b=document.createElement('span');b.className='calendar-dot';b.textContent=(t.done?'✓ ':'')+t.title;e.append(b);});
-      grid.append(e);
-    }
-    const events=$('calendar-events');events.replaceChildren();
-    const inMonth=tasks.filter(t=>t.date.startsWith(`${year}-${String(m+1).padStart(2,'0')}`)).sort((a,b)=>a.date.localeCompare(b.date));
-    if(!inMonth.length)events.textContent='이 달에는 생성된 예시 일정이 없어요.';
-    inMonth.forEach(t=>{const p=document.createElement('p');p.textContent=`${t.date.slice(5)} · ${t.title}${t.done?' ✓':''}`;events.append(p);});
-  }
-  function refresh(){renderScenario();renderTasks();renderCalendar();}
-  document.querySelectorAll('[data-scenario]').forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.scenario;tasks=[];save();refresh();track('scenario_select',{scenario:selected});}));
-  $('generate-plan').addEventListener('click',()=>{tasks=scenarios[selected].steps.map(([title,days])=>({title,date:addDays(days),done:false}));month=new Date();month.setDate(1);save();refresh();track('plan_generate',{scenario:selected,count:tasks.length});});
-  $('reset-tasks').addEventListener('click',()=>{tasks=[];save();refresh();track('plan_reset',{scenario:selected});});
-  $('prev-month').addEventListener('click',()=>{month.setMonth(month.getMonth()-1);renderCalendar();track('calendar_navigate',{direction:'prev'});});
-  $('next-month').addEventListener('click',()=>{month.setMonth(month.getMonth()+1);renderCalendar();track('calendar_navigate',{direction:'next'});});
+  function renderCalendar(){const y=month.getFullYear(),m=month.getMonth(),grid=$('calendar-grid');$('calendar-title').textContent=`${y}년 ${m+1}월`;grid.replaceChildren();['일','월','화','수','목','금','토'].forEach(w=>{const e=document.createElement('div');e.className='calendar-weekday';e.textContent=w;grid.append(e);});const offset=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();for(let i=0;i<offset+days;i++){const cell=document.createElement('div');cell.className='calendar-day';if(i<offset){cell.classList.add('muted');grid.append(cell);continue;}const day=i-offset+1,date=key(new Date(y,m,day));cell.textContent=day;if(date===key(new Date()))cell.classList.add('today');[...state.tasks.map(t=>({...t,kind:'task'})),...state.documents.filter(d=>d.date).map(d=>({...d,kind:'document'}))].filter(t=>t.date===date).forEach(t=>{const e=document.createElement('span');e.className='calendar-dot'+(t.done?' done':'');e.textContent=(t.done?'✓ ':'○ ')+(t.kind==='document'?'📄 ':'')+t.title;cell.append(e);});grid.append(cell);}const events=$('calendar-events');events.replaceChildren();const monthTasks=[...state.tasks.map(t=>({...t,kind:'task'})),...state.documents.filter(d=>d.date).map(d=>({...d,kind:'document'}))].filter(t=>t.date.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)).sort((a,b)=>a.date.localeCompare(b.date));if(!monthTasks.length)events.textContent='이번 달에는 생성된 가상 일정이 없어요.';monthTasks.forEach(t=>{const e=document.createElement('p');e.textContent=`${t.date.slice(5)} · ${t.done?'✓ 완료':'○ 예정'} · ${t.kind==='document'?'📄 서류 · ':''}${t.title}`;events.append(e);});}
+  function openWorkspace(){ $('planner-demo').hidden=false;$('workspace-title').textContent='버디의 '+scenarios[state.scenario].name+' 플래너';$('workspace-subtitle').textContent='대화에서 만든 가상 일정 · 체크하면 캘린더에도 반영돼요.';renderEligibility();renderTasks();renderDocuments();renderCalendar();$('planner-demo').scrollIntoView({behavior:'smooth',block:'start'});}
+  function makePlan(scenario){state={scenario,profile:{},tasks:scenarios[scenario].steps.map(([title,days])=>({title,date:plus(days),done:false})),documents:scenarios[scenario].documents.map(([title,days])=>({title,date:plus(days),done:false}))};month=new Date();month.setDate(1);save();renderTasks();renderCalendar();openWorkspace();track('plan_generate',{scenario,count:state.tasks.length});}
+  function renderEligibility(){const target=$('eligibility-result');if(!state.scenario){target.textContent='먼저 질문을 입력해 주세요.';return;}const p=state.profile||{};let status='추가 정보 필요',detail='현재 학적 상태와 학년을 입력하면 시연용 규칙으로 신청 가능성을 분류해 줄게.';if(p.status&&p.year){if(p.status==='leave' && state.scenario==='leave'){status='시연 판정: 신청 불가';detail='가상 규칙상 이미 휴학 중이면 신규 휴학 신청 대신 복학/연장 절차 확인 대상으로 분류해.';}else if(p.status==='graduate' && state.scenario==='course'){status='시연 판정: 신청 불가';detail='가상 규칙상 졸업 상태에서는 일반 재학생 수강신청 대상이 아니라고 가정했어.';}else if(p.status==='enrolled'){status='시연 판정: 조건부 가능';detail='가상 규칙상 재학 중이면 기본 신청 대상으로 분류했어. 실제로는 신청 유형, 학칙, 성적 및 공지에 따라 달라져.';}else{status='시연 판정: 추가 확인 필요';detail='가상 규칙상 현재 상태만으로는 판단할 수 없어. 실제 서비스에서는 관련 규정과 세부 조건을 조회해야 해.';}}target.replaceChildren();const strong=document.createElement('strong');strong.textContent=status;const desc=document.createElement('p');desc.textContent=detail;const note=document.createElement('small');note.textContent='※ 실제 대학 규정 조회 결과가 아닌 가상 시뮬레이션입니다.';target.append(strong,desc,note);}
+  $('eligibility-check').addEventListener('click',()=>{state.profile={status:$('student-status').value,year:$('student-year').value};save();renderEligibility();track('eligibility_demo',{scenario:state.scenario,complete:!!(state.profile.status&&state.profile.year)});});
+  window.CampusBuddyDemo={match(text){return Object.keys(scenarios).find(k=>scenarios[k].match.test(text))||null;},getAnswer(k){return scenarios[k].answer;},makePlan};
+  $('back-to-chat').addEventListener('click',()=>document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'center'}));
+  $('reset-tasks').addEventListener('click',()=>{state.tasks=[];state.documents=[];state.profile={};save();renderTasks();renderDocuments();renderCalendar();track('plan_reset',{scenario:state.scenario});});
+  $('prev-month').addEventListener('click',()=>{month.setMonth(month.getMonth()-1);renderCalendar();});
+  $('next-month').addEventListener('click',()=>{month.setMonth(month.getMonth()+1);renderCalendar();});
   $('today-month').addEventListener('click',()=>{month=new Date();month.setDate(1);renderCalendar();});
-  const escapeIcs=s=>s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
-  $('download-calendar').addEventListener('click',()=>{
-    if(!tasks.length)return;
-    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Campus Buddy//Fake Door Demo//KO','CALSCALE:GREGORIAN'];
-    tasks.forEach((t,i)=>{const d=t.date.replace(/-/g,'');const next=new Date(`${t.date}T12:00:00`);next.setDate(next.getDate()+1);lines.push('BEGIN:VEVENT',`UID:campusbuddy-${Date.now()}-${i}@demo.local`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}`,`DTSTART;VALUE=DATE:${d}`,`DTEND;VALUE=DATE:${dateKey(next).replace(/-/g,'')}`,`SUMMARY:${escapeIcs('[체험용] '+t.title)}`,'DESCRIPTION:캠퍼스 버디 가상 체험 일정입니다. 실제 학교 마감일이 아닙니다.','END:VEVENT');});
-    lines.push('END:VCALENDAR');const blob=new Blob([lines.join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='campus-buddy-demo.ics';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);track('calendar_export',{scenario:selected,count:tasks.length});
-  });
-  refresh();
+  const esc=s=>s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+  $('download-calendar').addEventListener('click',()=>{if(!state.tasks.length)return;const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Campus Buddy//Demo//KO'];[...state.tasks,...state.documents.filter(d=>d.date)].forEach((t,i)=>{const d=t.date.replace(/-/g,'');const next=new Date(t.date+'T12:00:00');next.setDate(next.getDate()+1);lines.push('BEGIN:VEVENT',`UID:cb-${Date.now()}-${i}@demo.local`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}`,`DTSTART;VALUE=DATE:${d}`,`DTEND;VALUE=DATE:${key(next).replace(/-/g,'')}`,`SUMMARY:${esc('[가상 일정] '+(t.done?'[완료] ':'')+t.title)}`,'DESCRIPTION:시연용 가상 일정이며 실제 학교 마감일이 아닙니다.','END:VEVENT');});lines.push('END:VCALENDAR');const url=URL.createObjectURL(new Blob([lines.join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='campus-buddy-demo.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);track('calendar_export',{scenario:state.scenario});});
+  renderTasks();renderDocuments();renderCalendar();renderEligibility();
+  if(state.scenario && state.tasks.length){$('planner-demo').hidden=false;$('workspace-title').textContent='버디의 '+scenarios[state.scenario].name+' 플래너';$('workspace-subtitle').textContent='이전에 생성한 가상 일정이 저장되어 있어요.';}
 })();

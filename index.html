@@ -1,15 +1,33 @@
 <!DOCTYPE html>
 <html lang="ko">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <meta content="학교 공지부터 마감일까지, 캠퍼스 버디가 함께 정리해 드려요." name="description"/>
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="학교 공지부터 마감일까지, 캠퍼스 버디가 함께 정리해 드려요." name="description" />
   <title>
-   캠퍼스 버디 | 학교생활의 작은 비서
+    캠퍼스 버디 | 학교생활의 작은 비서
   </title>
-  <link href="styles.css" rel="stylesheet"/>
- </head>
- <body>
+  <link href="styles.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/busy-load/dist/app.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/busy-load/dist/app.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/gh/dinoqqq/simple-popup@master/dist/jquery.simple-popup.min.css" rel="stylesheet"
+    type="text/css" />
+  <style>
+    input,
+    textarea,
+    button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
   <!-- 교수님 수업 자료: jQuery JSONP 방문자 기록 -->
   <script src="https://code.jquery.com/jquery-latest.min.js"></script>
   <script>
@@ -41,11 +59,75 @@
     // 교수님 자료의 IP JSONP 조회: IP가 도착한 뒤 data를 생성하도록 순서 정리
     var ip = 'unknown';
     var ipResolved = false;
+
     function getIP(json) {
       ip = (json && json.ip) ? json.ip : 'unknown';
       ipResolved = true;
-      if (document.readyState !== 'loading') sendCampusBuddyVisit();
+
+      if (document.readyState !== 'loading') {
+        sendCampusBuddyVisit();
+      }
     }
+
+
+    $(document).ready(function () {
+      $("#submit").on("click", function (event) {
+        event.preventDefault();
+
+        const email = $("#submit-email").val().trim();
+        const advice = $("#submit-advice").val().trim();
+
+        if (!email || !document.getElementById("submit-email").checkValidity()) {
+          alert("올바른 이메일 주소를 입력해 주세요.");
+          return;
+        }
+
+        const finalData = JSON.stringify({
+          id: getUVfromCookie(),
+          email: email,
+          advice: advice
+        });
+
+        const addrScript =
+          "https://script.google.com/macros/s/AKfycbynZcKE5dachi2tGvOgOz70Lje9PWCMUrhVrVWb8HTLfuHpyECRjRwNoKJPgltUD4YLqw/exec";
+
+        const $button = $("#submit");
+        $button.prop("disabled", true).text("제출 중...");
+
+        $.ajax({
+          url: addrScript
+            + "?action=insert"
+            + "&table=tab_final"
+            + "&data=" + encodeURIComponent(finalData),
+
+          dataType: "jsonp",
+
+          success: function (result) {
+            console.log("이메일 및 조언 저장 결과:", result);
+
+            if (result && result.success === true) {
+              alert("제출이 완료되었습니다. 감사합니다!");
+
+              $("#submit-email").val("");
+              $("#submit-advice").val("");
+            } else {
+              alert("저장에 실패했습니다. 다시 시도해 주세요.");
+              console.error("Apps Script 응답:", result);
+            }
+          },
+
+          error: function (xhr, status, error) {
+            console.error("제출 오류:", status, error);
+            alert("서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+          },
+
+          complete: function () {
+            $button.prop("disabled", false).text("지금 제출!");
+          }
+        });
+      });
+
+    });
 
     function padValue(value) {
       return (value < 10) ? '0' + value : value;
@@ -78,11 +160,11 @@
       jQuery.ajax({
         url: addrScript + '?action=insert&table=visitors&data=' + encodeURIComponent(data),
         dataType: 'jsonp',
-        success: function(result) { console.log('방문 기록 응답 - ', result); },
-        error: function(xhr, status, error) { console.error('방문 기록 실패 - ', status, error); }
+        success: function (result) { console.log('방문 기록 응답 - ', result); },
+        error: function (xhr, status, error) { console.error('방문 기록 실패 - ', status, error); }
       });
     }
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // IP 서비스가 응답하지 않아도 2초 후 기록 (ip='unknown')
       if (ipResolved) sendCampusBuddyVisit();
       else setTimeout(sendCampusBuddyVisit, 2000);
@@ -91,258 +173,299 @@
   <script src="https://jsonip.com?format=jsonp&amp;callback=getIP"></script>
 
   <header class="wrap nav">
-   <a class="logo" href="#top">
-    <span class="logo-mark">
-     🧸
-    </span>
-    캠퍼스 버디
-   </a>
-   <nav class="nav-links">
-    <a href="#features">
-     주요 기능
+    <a class="logo" href="#top">
+      <span class="logo-mark">
+        🧸
+      </span>
+      캠퍼스 버디
     </a>
-    <a href="#planner-demo">
-     AI 미리보기
-    </a>
-    <button class="btn" data-cta="header">
-     출시 알림 받기
-    </button>
-   </nav>
+    <nav class="nav-links">
+      <a href="#features">
+        주요 기능
+      </a>
+      <a href="#demo">
+        AI 미리보기
+      </a>
+      <button class="btn" data-cta="header">
+        출시 알림 받기
+      </button>
+    </nav>
   </header>
   <main id="top">
-   <section class="hero">
-    <div class="wrap hero-grid">
-     <div>
-      <span class="eyebrow">
-       ✨ 대학생활, 조금 더 가볍게
-      </span>
-      <h1>
-       복잡한 학교 공지,
-       <br/>
-       <em>
-        버디에게 물어봐!
-       </em>
-      </h1>
-      <p>
-       휴학 신청부터 장학금, 졸업 요건까지. 여기저기 찾아다닐 필요 없이, 내게 필요한 학교 행정 정보를 한곳에서 확인해요.
-      </p>
-      <div class="actions">
-       <a class="btn" href="#demo" id="hero-demo">
-        AI 비서 미리 체험하기 ↗
-       </a>
-       <button class="btn secondary" data-cta="hero">
-        출시 소식 받기
-       </button>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">
+            ✨ 대학생활, 조금 더 가볍게
+          </span>
+          <h1>
+            복잡한 학교 공지,
+            <br />
+            <em>
+              버디에게 물어봐!
+            </em>
+          </h1>
+          <p>
+            휴학 신청부터 장학금, 졸업 요건까지. 여기저기 찾아다닐 필요 없이, 내게 필요한 학교 행정 정보를 한곳에서 확인해요.
+          </p>
+          <div class="actions">
+            <a class="btn" href="#demo" id="hero-demo">
+              AI 비서 미리 체험하기 ↗
+            </a>
+            <button class="btn secondary" data-cta="hero">
+              출시 소식 받기
+            </button>
+          </div>
+          <p class="micro">
+            🌷 현재 서비스 준비 중 · 아래 채팅은 기능 시연용 예시입니다.
+          </p>
+        </div>
+        <div class="demo-shell" id="demo">
+          <div class="demo-top">
+            <div class="avatar">
+              🐻
+            </div>
+            <div>
+              <strong>
+                버디 AI
+              </strong>
+              <small>
+                학교생활을 돕는 작은 친구
+              </small>
+            </div>
+            <span aria-label="데모 활성" class="online">
+            </span>
+          </div>
+          <div aria-live="polite" class="messages" id="messages">
+            <div class="bubble bot welcome-message">
+              <p>안녕! 나는 캠퍼스 버디야 🧸</p>
+              <p>학교생활에서 궁금한 걸 물어봐!</p>
+              <p>아래 예시 질문을 눌러도 좋아.</p>
+            </div>
+          </div>
+          <div class="chips">
+            <button class="chip" data-question="휴학 신청은 어떻게 해?">
+              🏫 휴학 신청은?
+            </button>
+            <button class="chip" data-question="졸업 요건은 어디서 확인해?">
+              🎓 졸업 요건 확인
+            </button>
+            <button class="chip" data-question="장학금 공지는 어디서 봐?">
+              💌 장학금 공지
+            </button>
+          </div>
+          <form class="composer" id="chat-form">
+            <input aria-label="버디에게 질문하기" id="question" maxlength="180" placeholder="궁금한 걸 물어봐..." required="" />
+            <button aria-label="질문 보내기" type="submit">
+              ➜
+            </button>
+          </form>
+          <div class="demo-note">
+            이 채팅은 사전 제작된 시연이며 실제 학교 규정 조회 기능은 아직 제공되지 않습니다.
+          </div>
+        </div>
       </div>
-      <p class="micro">
-       🌷 현재 서비스 준비 중 · 아래 채팅은 기능 시연용 예시입니다.
-      </p>
-     </div>
-     <div class="demo-shell" id="demo">
-      <div class="demo-top">
-       <div class="avatar">
-        🐻
-       </div>
-       <div>
-        <strong>
-         버디 AI
-        </strong>
-        <small>
-         학교생활을 돕는 작은 친구
-        </small>
-       </div>
-       <span aria-label="데모 활성" class="online">
-       </span>
+    </section>
+
+    <section class="workflow section" id="planner-demo" hidden>
+      <div class="wrap">
+        <div class="result-header">
+          <div><span class="eyebrow">✨ BUDDY WORKSPACE</span>
+            <h2 id="workspace-title">나의 준비 플래너</h2>
+            <p id="workspace-subtitle">버디가 가상 신청 자격, 필요 서류와 기한을 함께 정리해요.</p>
+          </div><button class="btn secondary" id="back-to-chat" type="button">← 채팅으로 돌아가기</button>
+        </div>
+        <p class="demo-disclaimer">⚠️ 모든 날짜·서류 목록은 기능 시연을 위한 가상 예시입니다. 실제 제출 서류·기한은 반드시 학교 공식 공지를 확인해 주세요.</p>
+        <article class="work-card eligibility-card" aria-label="신청 가능 여부 시연">
+          <div class="work-heading">
+            <div><span class="work-kicker">ELIGIBILITY PREVIEW</span>
+              <h3>🔎 버디의 신청 가능 여부 분석</h3>
+            </div>
+          </div>
+          <p class="docs-note">실제 학교 규정과 연동되지 않은 시뮬레이션이야. 개인정보 대신 가상의 상태를 선택해도 돼.</p>
+          <div class="eligibility-inputs"><label>현재 학적 상태<select id="student-status">
+                <option value="">선택해 줘</option>
+                <option value="enrolled">재학 중</option>
+                <option value="leave">휴학 중</option>
+                <option value="graduate">졸업</option>
+              </select></label><label>학년<select id="student-year">
+                <option value="">선택해 줘</option>
+                <option value="1">1학년</option>
+                <option value="2">2학년</option>
+                <option value="3">3학년</option>
+                <option value="4">4학년 이상</option>
+              </select></label><button type="button" class="btn" id="eligibility-check">버디가 확인하기</button></div>
+          <div class="eligibility-result" id="eligibility-result" aria-live="polite">학적 상태를 선택하면 가상 신청 가능 여부를 안내할게.
+          </div>
+        </article>
+        <div class="workspace workspace-dashboard">
+          <div class="workspace-left">
+            <article class="work-card task-card" id="tasks-panel">
+              <div class="work-heading">
+                <div><span class="work-kicker">MY TO-DO</span>
+                  <h3>📝 준비할 일</h3>
+                </div><span id="task-count" class="count-pill">0 / 0</span>
+              </div>
+              <p id="task-empty">채팅에서 질문하면 할 일이 만들어져요.</p>
+              <div id="task-list" aria-live="polite"></div>
+              <button class="text-action" id="reset-tasks" type="button">현재 계획 초기화</button>
+            </article>
+            <article class="work-card docs-card" id="documents-panel">
+              <div class="work-heading">
+                <div><span class="work-kicker">DOCUMENT CHECKLIST</span>
+                  <h3>📄 준비 서류</h3>
+                </div><span id="doc-count" class="count-pill">0 / 0</span>
+              </div>
+              <p class="docs-note">서류마다 가상 준비 기한을 표시하고, 완료하면 캘린더에도 반영해요. 실제 필수 서류나 마감일이 아닙니다.</p>
+              <p id="doc-empty">채팅에서 질문하면 서류 목록이 만들어져요.</p>
+              <div id="document-list" aria-live="polite"></div>
+            </article>
+          </div>
+          <article class="work-card calendar-card" id="calendar-panel">
+            <div class="work-heading">
+              <div><span class="work-kicker">MY CALENDAR</span>
+                <h3>🗓️ 나의 일정</h3>
+              </div><span id="calendar-title"></span>
+            </div>
+            <div class="calendar-controls"><button id="prev-month" aria-label="이전 달">‹</button><button
+                id="today-month">이번 달</button><button id="next-month" aria-label="다음 달">›</button></div>
+            <div class="calendar-grid" id="calendar-grid" aria-label="일정 달력"></div>
+            <div class="calendar-events" id="calendar-events"></div>
+            <button class="btn secondary" id="download-calendar" disabled>📅 캘린더 파일(.ics) 받기</button>
+            <p class="calendar-hint">체험용 일정입니다. 다운로드해도 실제 학교 일정이 되지는 않습니다.</p>
+          </article>
+        </div>
       </div>
-      <div aria-live="polite" class="messages" id="messages">
-       <div class="bubble bot">
-        안녕! 나는 캠퍼스 버디야 🧸
-        <br/>
-        학교생활에서 궁금한 걸 물어봐!
-        <br/>
-        <br/>
-        아래 예시 질문을 눌러도 좋아.
-       </div>
+    </section>
+    <section class="section" id="features">
+      <div class="wrap">
+        <div class="center">
+          <span class="eyebrow">
+            WHAT WE DO
+          </span>
+          <h2>
+            학교생활의 번거로움을 덜어줄게요
+          </h2>
+          <p class="sub">
+            정보 찾느라 보내는 시간은 줄이고, 나에게 중요한 일에 집중해요.
+          </p>
+        </div>
+        <div class="features">
+          <article class="feature">
+            <div class="feature-icon">
+              💬
+            </div>
+            <h3>
+              궁금한 건 바로 질문
+            </h3>
+            <p>
+              흩어진 학사 정보와 학교 규정을 질문 한 번으로 쉽게 찾을 수 있도록 준비하고 있어요.
+            </p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">
+              🔔
+            </div>
+            <h3>
+              나에게 맞는 공지
+            </h3>
+            <p>
+              소속과 학년에 맞춰 놓치기 쉬운 공지를 골라 보여주는 기능을 구상 중이에요.
+            </p>
+          </article>
+          <article class="feature">
+            <div class="feature-icon">
+              🗓️
+            </div>
+            <h3>
+              마감일도 한눈에
+            </h3>
+            <p>
+              신청 일정과 제출 기한을 정리해 학교 행정 일정을 놓치지 않도록 도울 예정이에요.
+            </p>
+          </article>
+        </div>
       </div>
-      <div class="chips">
-       <button class="chip" data-question="휴학 신청은 어떻게 해?">
-        🏫 휴학 신청은?
-       </button>
-       <button class="chip" data-question="졸업 요건은 어디서 확인해?">
-        🎓 졸업 요건 확인
-       </button>
-       <button class="chip" data-question="장학금 공지는 어디서 봐?">
-        💌 장학금 공지
-       </button>
-      </div>
-      <form class="composer" id="chat-form">
-       <input aria-label="버디에게 질문하기" id="question" maxlength="180" placeholder="궁금한 걸 물어봐..." required=""/>
-       <button aria-label="질문 보내기" type="submit">
-        ➜
-       </button>
-      </form>
-      <div class="demo-note">
-       이 채팅은 사전 제작된 시연이며 실제 학교 규정 조회 기능은 아직 제공되지 않습니다.
-      </div>
-     </div>
-    </div>
-   </section>
-   
-<section class="workflow section" id="planner-demo">
-  <div class="wrap">
-    <div class="center">
-      <span class="eyebrow">✨ INTERACTIVE PREVIEW</span>
-      <h2>질문에서 일정까지, 한 번에 💜</h2>
-      <p class="sub">상황을 선택하면 버디가 답변하고 나만의 체크리스트와 플래너를 만들어줘요.</p>
-      <p class="demo-disclaimer">체험용 가상 일정입니다. 실제 연세대 공지·학사 규정 및 마감일이 아닙니다.</p>
-    </div>
-    <div class="scenario-bar" role="group" aria-label="체험 시나리오">
-      <button class="scenario active" data-scenario="leave">🌱 휴학 준비</button>
-      <button class="scenario" data-scenario="graduation">🎓 졸업 준비</button>
-      <button class="scenario" data-scenario="scholarship">💌 장학금 신청</button>
-    </div>
-    <div class="workspace">
-      <article class="work-card answer-card">
-        <span class="work-kicker">💬 버디의 답변</span>
-        <h3 id="flow-question"></h3>
-        <p id="flow-answer"></p>
-        <p class="fake-source">📎 출처: 데모 시나리오 (실제 공지 조회 아님)</p>
-        <button class="btn" id="generate-plan">✨ 내 할 일로 정리하기</button>
-      </article>
-      <article class="work-card task-card">
-        <div class="work-heading"><div><span class="work-kicker">📝 MY TO-DO</span><h3>나의 체크리스트</h3></div><span id="task-count" class="count-pill">0 / 0</span></div>
-        <p class="empty-hint" id="task-empty">왼쪽의 버튼을 눌러 할 일을 만들어봐!</p>
-        <div id="task-list" aria-live="polite"></div>
-        <button class="text-action" id="reset-tasks" type="button">체크리스트 초기화</button>
-      </article>
-      <article class="work-card calendar-card">
-        <div class="work-heading"><div><span class="work-kicker">🗓️ MY PLANNER</span><h3>나의 일정</h3></div><span id="calendar-title"></span></div>
-        <div class="calendar-controls"><button id="prev-month" aria-label="이전 달">‹</button><button id="today-month">이번 달</button><button id="next-month" aria-label="다음 달">›</button></div>
-        <div class="calendar-grid" id="calendar-grid" aria-label="일정 달력"></div>
-        <div class="calendar-events" id="calendar-events">체크리스트를 만들면 일정이 여기에 표시돼요.</div>
-        <button class="btn secondary" id="download-calendar" disabled>📅 캘린더 파일(.ics) 받기</button>
-        <p class="calendar-hint">다운로드한 .ics 파일을 Google Calendar 등에서 가져올 수 있어요. 계정에 자동으로 등록되지는 않습니다.</p>
-      </article>
-    </div>
-  </div>
-</section>
-<section class="section" id="features">
-    <div class="wrap">
-     <div class="center">
-      <span class="eyebrow">
-       WHAT WE DO
-      </span>
+    </section>
+    <section class="wrap cta">
       <h2>
-       학교생활의 번거로움을 덜어줄게요
+        버디와 함께할 준비 됐나요? 🌼
       </h2>
-      <p class="sub">
-       정보 찾느라 보내는 시간은 줄이고, 나에게 중요한 일에 집중해요.
+      <p>
+        서비스가 출시되면 가장 먼저 알려드릴게요.
       </p>
-     </div>
-     <div class="features">
-      <article class="feature">
-       <div class="feature-icon">
-        💬
-       </div>
-       <h3>
-        궁금한 건 바로 질문
-       </h3>
-       <p>
-        흩어진 학사 정보와 학교 규정을 질문 한 번으로 쉽게 찾을 수 있도록 준비하고 있어요.
-       </p>
-      </article>
-      <article class="feature">
-       <div class="feature-icon">
-        🔔
-       </div>
-       <h3>
-        나에게 맞는 공지
-       </h3>
-       <p>
-        소속과 학년에 맞춰 놓치기 쉬운 공지를 골라 보여주는 기능을 구상 중이에요.
-       </p>
-      </article>
-      <article class="feature">
-       <div class="feature-icon">
-        🗓️
-       </div>
-       <h3>
-        마감일도 한눈에
-       </h3>
-       <p>
-        신청 일정과 제출 기한을 정리해 학교 행정 일정을 놓치지 않도록 도울 예정이에요.
-       </p>
-      </article>
-     </div>
-    </div>
-   </section>
-   <section class="wrap cta">
-    <h2>
-     버디와 함께할 준비 됐나요? 🌼
-    </h2>
-    <p>
-     서비스가 출시되면 가장 먼저 알려드릴게요.
-    </p>
-    <button class="btn" data-cta="bottom">
-     출시 알림 신청하기 →
-    </button>
-   </section>
+      <center>
+        <p>이메일을 남겨주시면 서비스가 런칭되었을 때 알림을 드리겠습니다. </p>
+        <input id="submit-email" type="email" placeholder="알림을 받으실 이메일" /> <br><br>
+        <p>서비스가 이렇게 되었으면 좋겠다는 조언을 해 주세요 </p>
+        <textarea id="submit-advice" name="Text1" cols="40" rows="5" placeholder="서비스에 대한 조언을 남겨주세요"></textarea><br>
+        <button style="width:350px;" id="submit">지금 제출! </button>
+      </center>
+      <button class="btn" data-cta="bottom">
+        출시 알림 신청하기 →
+      </button>
+    </section>
   </main>
   <footer class="footer">
-   <div class="wrap">
-    <span>
-     © 2026 캠퍼스 버디 · 서비스 콘셉트 검증용 프로토타입
-    </span>
-    <span>
-     연세대학교 공식 서비스가 아닙니다.
-    </span>
-   </div>
+    <div class="wrap">
+      <span>
+        © 2026 캠퍼스 버디 · 서비스 콘셉트 검증용 프로토타입
+      </span>
+      <span>
+        연세대학교 공식 서비스가 아닙니다.
+      </span>
+    </div>
   </footer>
   <div class="modal-backdrop" id="modal-backdrop" role="presentation">
-   <div aria-labelledby="modal-title" aria-modal="true" class="modal" role="dialog">
-    <button aria-label="닫기" class="close" id="close-modal">
-     ×
-    </button>
-    <div id="signup">
-     <span class="eyebrow">
-      COMING SOON 🌷
-     </span>
-     <h2 id="modal-title">
-      조금만 기다려 주세요!
-     </h2>
-     <p>
-      캠퍼스 버디는 아직 준비 중이에요. 관심을 가져주셔서 고마워요! 출시 알림을 받고 싶다면 이메일을 남겨주세요.
-     </p>
-     <form id="waitlist-form">
-      <label for="email">
-       이메일 주소
-      </label>
-      <input autocomplete="email" id="email" placeholder="hello@example.com" required="" type="email"/>
-      <div class="error" id="error">
-      </div>
-      <button class="btn" type="submit">
-       출시 알림 신청하기
+    <div aria-labelledby="modal-title" aria-modal="true" class="modal" role="dialog">
+      <button aria-label="닫기" class="close" id="close-modal">
+        ×
       </button>
-     </form>
-     <p class="privacy">
-      ※ 현재는 데모입니다. 입력한 이메일은 서버에 저장되거나 전송되지 않습니다. 실제 신청 수집은 백엔드 연결 후 가능합니다.
-     </p>
+      <div id="signup">
+        <span class="eyebrow">
+          COMING SOON 🌷
+        </span>
+        <h2 id="modal-title">
+          조금만 기다려 주세요!
+        </h2>
+        <p>
+          캠퍼스 버디는 아직 준비 중이에요. 관심을 가져주셔서 고마워요! 출시 알림을 받고 싶다면 이메일을 남겨주세요.
+        </p>
+        <form id="waitlist-form">
+          <label for="email">
+            이메일 주소
+          </label>
+          <input autocomplete="email" id="email" placeholder="hello@example.com" required="" type="email" />
+          <div class="error" id="error">
+          </div>
+          <button class="btn" type="submit">
+            출시 알림 신청하기
+          </button>
+        </form>
+        <p class="privacy">
+          ※ 현재는 데모입니다. 입력한 이메일은 서버에 저장되거나 전송되지 않습니다. 실제 신청 수집은 백엔드 연결 후 가능합니다.
+        </p>
+      </div>
+      <div class="success" id="success">
+        <h2>
+          관심 가져줘서 고마워요! 💜
+        </h2>
+        <p>
+          현재는 시연 모드라 이메일이 접수되지는 않았어요. 정식 오픈 때 다시 만나요!
+        </p>
+        <button class="btn" id="done">
+          닫기
+        </button>
+      </div>
     </div>
-    <div class="success" id="success">
-     <h2>
-      관심 가져줘서 고마워요! 💜
-     </h2>
-     <p>
-      현재는 시연 모드라 이메일이 접수되지는 않았어요. 정식 오픈 때 다시 만나요!
-     </p>
-     <button class="btn" id="done">
-      닫기
-     </button>
-    </div>
-   </div>
   </div>
   <script src="planner.js"></script>
   <script src="script.js">
   </script>
- </body>
+  <div id="popup" style="display:none;">
+    <h1>감사합니다. </h1>
+    <p>이제는 우리는 같은 배를 탔습니다. </p>
+  </div>
+</body>
+
 </html>
