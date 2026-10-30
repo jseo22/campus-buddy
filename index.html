@@ -122,8 +122,7 @@
           },
 
           complete: function () {
-            $button.prop("disabled", false).text("지금 제출!");
-          }
+            $button.prop("disabled", false).text("출시 알림 신청하기 →");          }
         });
       });
 
@@ -186,9 +185,9 @@
       <a href="#demo">
         AI 미리보기
       </a>
-      <button class="btn" data-cta="header">
+      <a href="#launch-notification" class="btn primary">
         출시 알림 받기
-      </button>
+      </a>
     </nav>
   </header>
   <main id="top">
@@ -212,9 +211,9 @@
             <a class="btn" href="#demo" id="hero-demo">
               AI 비서 미리 체험하기 ↗
             </a>
-            <button class="btn secondary" data-cta="hero">
+            <a href="#launch-notification" class="btn secondary">
               출시 소식 받기
-            </button>
+            </a>
           </div>
           <p class="micro">
             🌷 현재 서비스 준비 중 · 아래 채팅은 기능 시연용 예시입니다.
@@ -387,23 +386,56 @@
         </div>
       </div>
     </section>
-    <section class="wrap cta">
-      <h2>
-        버디와 함께할 준비 됐나요? 🌼
-      </h2>
-      <p>
-        서비스가 출시되면 가장 먼저 알려드릴게요.
+    <section id="launch-notification" class="wrap cta buddy-cta">
+      <div class="buddy-cta-heading">
+        <span class="buddy-cta-icon">🌼</span>
+        <h2>버디와 함께할 준비 됐나요?</h2>
+        <p>캠퍼스 버디의 첫 번째 소식을 가장 먼저 받아보세요.</p>
+      </div>
+    
+      <div class="buddy-signup-card">
+        <div class="buddy-signup-title">
+          <span>💌</span>
+          <div>
+            <h3>출시 알림 신청</h3>
+            <p>이메일을 남겨주시면 서비스 출시 소식을 알려드릴게요.</p>
+          </div>
+        </div>
+    
+        <div class="buddy-form-field">
+          <label for="submit-email">이메일 주소</label>
+          <input
+            id="submit-email"
+            type="email"
+            placeholder="example@yonsei.ac.kr"
+            autocomplete="email"
+            required
+          />
+        </div>
+    
+        <div class="buddy-form-field">
+          <label for="submit-advice">
+            버디에게 바라는 점 <span class="optional">(선택)</span>
+          </label>
+          <textarea
+            id="submit-advice"
+            rows="4"
+            placeholder="어떤 기능이 추가되면 좋을까요? 자유롭게 의견을 남겨주세요."
+          ></textarea>
+        </div>
+    
+        <p class="buddy-privacy-note">
+          🔒 입력한 이메일은 출시 알림 목적으로 수집됩니다.
+        </p>
+    
+        <button type="button" id="submit" class="buddy-submit-btn">
+          출시 알림 신청하기 <span>→</span>
+        </button>
+      </div>
+    
+      <p class="buddy-cta-footer">
+        🧸 여러분의 의견으로 캠퍼스 버디가 성장해요!
       </p>
-      <center>
-        <p>이메일을 남겨주시면 서비스가 런칭되었을 때 알림을 드리겠습니다. </p>
-        <input id="submit-email" type="email" placeholder="알림을 받으실 이메일" /> <br><br>
-        <p>서비스가 이렇게 되었으면 좋겠다는 조언을 해 주세요 </p>
-        <textarea id="submit-advice" name="Text1" cols="40" rows="5" placeholder="서비스에 대한 조언을 남겨주세요"></textarea><br>
-        <button style="width:350px;" id="submit">지금 제출! </button>
-      </center>
-      <button class="btn" data-cta="bottom">
-        출시 알림 신청하기 →
-      </button>
     </section>
   </main>
   <footer class="footer">

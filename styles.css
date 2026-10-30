@@ -436,6 +436,187 @@ a {
   }
 }
 
+/* Campus Buddy 출시 알림 신청 영역 */
+
+.buddy-cta {
+  text-align: center;
+  padding: 72px 24px;
+  border-radius: 36px;
+  background: linear-gradient(
+    120deg,
+    #f0ebff 0%,
+    #f8f6ff 48%,
+    #e8f8f3 100%
+  );
+}
+
+.buddy-cta-heading {
+  margin-bottom: 30px;
+}
+
+.buddy-cta-icon {
+  display: inline-block;
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.buddy-cta-heading h2 {
+  margin: 0 0 12px;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 800;
+  color: #26334f;
+}
+
+.buddy-cta-heading p {
+  color: #7b87a2;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.buddy-signup-card {
+  max-width: 510px;
+  margin: 0 auto;
+  padding: 34px;
+  border: 1px solid #eee9ff;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 16px 45px rgba(96, 75, 160, 0.09);
+  text-align: left;
+}
+
+.buddy-signup-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.buddy-signup-title > span {
+  font-size: 30px;
+}
+
+.buddy-signup-title h3 {
+  margin: 0 0 6px;
+  font-size: 21px;
+  color: #26334f;
+}
+
+.buddy-signup-title p {
+  margin: 0;
+  color: #8790a8;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.buddy-form-field {
+  margin-bottom: 20px;
+}
+
+.buddy-form-field label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #34405d;
+}
+
+.buddy-form-field .optional {
+  font-size: 12px;
+  font-weight: 400;
+  color: #a0a7b8;
+}
+
+.buddy-form-field input,
+.buddy-form-field textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid #e5e1f2;
+  border-radius: 13px;
+  background: #fcfbff;
+  font: inherit;
+  font-size: 14px;
+  color: #26334f;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.buddy-form-field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.buddy-form-field input:focus,
+.buddy-form-field textarea:focus {
+  border-color: #7863df;
+  box-shadow: 0 0 0 4px rgba(120, 99, 223, 0.1);
+}
+
+.buddy-privacy-note {
+  font-size: 12px;
+  color: #8993a8;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+#submit.buddy-submit-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px 20px;
+  background: #7560df;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+#submit.buddy-submit-btn:hover {
+  background: #624bcd;
+  transform: translateY(-2px);
+}
+
+#submit.buddy-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.buddy-cta-footer {
+  margin: 24px 0 0;
+  color: #8c91a9;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .buddy-cta {
+    padding: 44px 16px;
+    border-radius: 24px;
+  }
+
+  .buddy-signup-card {
+    padding: 24px 20px;
+  }
+}
+
+/* 페이지 내부 이동 시 부드럽게 스크롤 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 이메일 신청 영역으로 이동할 때 여백 확보 */
+#launch-notification {
+  scroll-margin-top: 30px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 
 /* Interactive planner demo */
 .workflow { background: #faf8ff; }
