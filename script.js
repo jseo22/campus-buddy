@@ -23,10 +23,35 @@ track('plan_created',{type,verdict});window.location.href='planner.html';
 function visible(){return plans.filter(p=>active==='all'||p.type===active);}
 function renderFilters(){const el=$('plan-filters');el.replaceChildren();const types=[['all','전체 일정'],...Object.keys(scenarios).map(k=>[k,scenarios[k].emoji+' '+scenarios[k].title])];types.forEach(([key,title])=>{const b=node('button','filter-chip'+(active===key?' selected':''),title);b.type='button';b.onclick=()=>{active=key;renderAll();};el.append(b);});}
 function makeItem(item,plan){const row=node('label','check-row');const cb=node('input');cb.type='checkbox';cb.checked=item.done;cb.addEventListener('change',()=>{item.done=cb.checked;save();renderAll();track('item_checked',{type:plan.type,kind:item.kind,done:item.done});});const body=node('span','check-body');const title=node('span','check-title'+(item.done?' done':''),item.title);const meta=node('small','',item.date+' · '+scenarios[plan.type].emoji+' '+plan.title);body.append(title,meta);row.append(cb,body);return row;}
-function renderAll(){renderFilters();const selected=visible();const eligibility=$('eligibility-summary');eligibility.replaceChildren();const taskEl=$('task-list'),docEl=$('document-list');taskEl.replaceChildren();docEl.replaceChildren();let tasks=[],docs=[];
-selected.forEach(p=>{const card=node('div','eligibility-entry');const title=node('strong','',scenarios[p.type].emoji+' '+p.title+' · '+p.verdict);card.append(title);p.results.forEach(r=>card.append(node('div','rule '+(r.pass?'pass':'fail'),(r.pass?'✓ ':'! ')+r.label+(r.pass?' · 충족':' · 미충족 — '+r.tip))));eligibility.append(card);p.tasks.forEach(t=>{tasks.push(t);taskEl.append(makeItem(t,p));});p.docs.forEach(d=>{docs.push(d);docEl.append(makeItem(d,p));});});
-if(!selected.length){eligibility.textContent='해당 분야의 계획이 없어.';taskEl.textContent='일정이 없어.';docEl.textContent='서류가 없어.';}
-$('task-count').textContent=tasks.filter(t=>t.done).length+' / '+tasks.length;$('doc-count').textContent=docs.filter(d=>d.done).length+' / '+docs.length;renderCalendar();}
+function renderGroupedItems(container,selected,kind){
+ const groups=new Map();
+ selected.forEach(plan=>{if(!groups.has(plan.type))groups.set(plan.type,[]);groups.get(plan.type).push(plan);});
+ groups.forEach((typePlans,type)=>{
+  const sc=scenarios[type];const all=typePlans.flatMap(p=>kind==='task'?p.tasks:p.docs);
+  if(!all.length)return;
+  const group=node('details','plan-category');group.open=true;
+  const heading=node('summary','plan-category-heading');
+  const name=node('span','plan-category-name',sc.emoji+' '+sc.title+' 준비');
+  const progress=node('span','plan-category-progress',all.filter(t=>t.done).length+' / '+all.length+' 완료');
+  heading.append(name,progress);group.append(heading);
+  const content=node('div','plan-category-content');
+  typePlans.forEach((plan,i)=>{
+   const items=kind==='task'?plan.tasks:plan.docs;
+   if(!items.length)return;
+   const sub=node('div','plan-category-batch');
+   if(typePlans.length>1){const date=new Date(plan.createdAt);const label=Number.isNaN(date.getTime())?'생성한 계획 '+(i+1):date.toLocaleDateString('ko-KR')+' 생성한 계획 '+(i+1);sub.append(node('div','plan-batch-title',label));}
+   items.forEach(item=>sub.append(makeItem(item,plan)));
+   content.append(sub);
+  });
+  group.append(content);container.append(group);
+ });
+}
+function renderAll(){renderFilters();const selected=visible();const eligibility=$('eligibility-summary');eligibility.replaceChildren();const taskEl=$('task-list'),docEl=$('document-list');taskEl.replaceChildren();docEl.replaceChildren();const tasks=selected.flatMap(p=>p.tasks),docs=selected.flatMap(p=>p.docs);
+ selected.forEach(p=>{const card=node('div','eligibility-entry');const title=node('strong','',scenarios[p.type].emoji+' '+p.title+' · '+p.verdict);card.append(title);p.results.forEach(r=>card.append(node('div','rule '+(r.pass?'pass':'fail'),(r.pass?'✓ ':'! ')+r.label+(r.pass?' · 충족':' · 미충족 — '+r.tip))));eligibility.append(card);});
+ renderGroupedItems(taskEl,selected,'task');renderGroupedItems(docEl,selected,'doc');
+ if(!selected.length){eligibility.textContent='해당 분야의 계획이 없어.';taskEl.textContent='일정이 없어.';docEl.textContent='서류가 없어.';}
+ else{if(!tasks.length)taskEl.textContent='해야 할 일이 없어.';if(!docs.length)docEl.textContent='준비할 서류가 없어.';}
+ $('task-count').textContent=tasks.filter(t=>t.done).length+' / '+tasks.length;$('doc-count').textContent=docs.filter(d=>d.done).length+' / '+docs.length;renderCalendar();}
 function renderCalendar(){const year=month.getFullYear(),m=month.getMonth(),grid=$('calendar-grid');$('calendar-title').textContent=year+'년 '+(m+1)+'월';grid.replaceChildren();['일','월','화','수','목','금','토'].forEach(d=>grid.append(node('div','cal-weekday',d)));
 const first=new Date(year,m,1).getDay(),days=new Date(year,m+1,0).getDate();for(let i=0;i<first;i++)grid.append(node('div','cal-blank'));
 const items=visible().flatMap(p=>[...p.tasks,...p.docs].map(t=>({...t,plan:p})));for(let day=1;day<=days;day++){const date=`${year}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const cell=node('div','cal-day');cell.append(node('span','cal-num',String(day)));items.filter(t=>t.date===date).forEach(t=>{const event=node('div','cal-event'+(t.done?' done':''),(t.done?'✓ ':'')+t.title);event.style.borderLeftColor=scenarios[t.plan.type].color;event.title=scenarios[t.plan.type].title+' · '+t.title;cell.append(event);});grid.append(cell);}
