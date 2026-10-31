@@ -1,0 +1,46 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="캠퍼스 버디 AI 학사행정 시연"><title>나의 플래너 | 캠퍼스 버디</title><link rel="stylesheet" href="styles.css"></head><body><script src="https://code.jquery.com/jquery-latest.min.js"></script><header class="wrap nav">
+<a class="logo" href="index.html">
+<span class="logo-mark">
+     🧸
+    </span>
+    캠퍼스 버디
+   </a>
+<nav class="nav-links">
+<a href="index.html#features">
+     주요 기능
+    </a>
+<a href="chat.html">
+     AI 채팅
+    </a>
+<a href="planner.html">나의 플래너</a><a class="btn" href="index.html#launch-notification">
+     출시 알림 받기
+    </a>
+</nav>
+</header><main class="app-page planner-page"><section class="workflow section"  id="planner-demo">
+<div class="wrap">
+<div class="result-header"><div><span class="eyebrow">✨ BUDDY WORKSPACE</span><h2>나의 학사 행정 플래너</h2><p>서로 다른 대화에서 만든 계획이 함께 쌓여요. 체크리스트와 캘린더는 서로 연동됩니다.</p></div><a class="btn secondary" href="chat.html">← 다른 질문하기</a></div>
+<p class="demo-disclaimer">⚠️ 모든 공지, 자격 조건, 날짜, 서류는 시연용 가상 정보이며 실제 학교 규정이 아닙니다.</p>
+<div class="workspace-toolbar"><div class="plan-filters" id="plan-filters"></div><button class="text-action" id="clear-plans" type="button">모든 시연 일정 초기화</button></div>
+<div class="workspace workspace-dashboard">
+<div class="workspace-left">
+<article class="work-card"><div class="work-heading"><h3>🔎 신청 자격 분석</h3></div><div id="eligibility-summary">계획을 생성하면 결과가 나타나요.</div></article>
+<article class="work-card"><div class="work-heading"><h3>📝 해야 할 일</h3><span class="count-pill" id="task-count"></span></div><div id="task-list"></div></article>
+<article class="work-card"><div class="work-heading"><h3>📄 필요 서류 · 제출 기한</h3><span class="count-pill" id="doc-count"></span></div><div id="document-list"></div></article>
+</div>
+<article class="work-card calendar-card"><div class="work-heading"><h3>🗓️ 통합 캘린더</h3><span id="calendar-title"></span></div>
+<div class="calendar-controls"><button id="prev-month" type="button">‹</button><button id="today-month" type="button">이번 달</button><button id="next-month" type="button">›</button></div>
+<div class="calendar-grid" id="calendar-grid"></div><div class="calendar-events" id="calendar-events"></div>
+<button class="btn secondary" id="download-calendar" type="button">📅 일정 .ics 다운로드</button>
+</article>
+</div>
+</div>
+</section></main><footer class="footer">
+<div class="wrap">
+<span>
+     © 2026 캠퍼스 버디 · 서비스 콘셉트 검증용 프로토타입
+    </span>
+<span>
+     연세대학교 공식 서비스가 아닙니다.
+    </span>
+</div>
+</footer><script src="scenarios.js"></script><script src="visitor-tracking.js"></script><script src="script.js"></script></body></html>

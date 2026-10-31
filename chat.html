@@ -1,0 +1,61 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="캠퍼스 버디 AI 학사행정 시연"><title>AI 채팅 | 캠퍼스 버디</title><link rel="stylesheet" href="styles.css"></head><body><script src="https://code.jquery.com/jquery-latest.min.js"></script><header class="wrap nav">
+<a class="logo" href="index.html">
+<span class="logo-mark">
+     🧸
+    </span>
+    캠퍼스 버디
+   </a>
+<nav class="nav-links">
+<a href="index.html#features">
+     주요 기능
+    </a>
+<a href="chat.html">
+     AI 채팅
+    </a>
+<a href="planner.html">나의 플래너</a><a class="btn" href="index.html#launch-notification">
+     출시 알림 받기
+    </a>
+</nav>
+</header><main class="app-page chat-page"><section class="wrap app-heading"><span class="eyebrow">🧸 BUDDY AI</span><h1>버디와 이야기해 볼까요?</h1><p>교환학생, 장학금, 휴학을 질문하고 나에게 맞는 준비 계획을 만들어봐요.</p></section><section class="wrap chat-layout"><div class="chat-main"><div class="demo-shell" id="demo">
+<div class="demo-top">
+<div class="avatar">
+        🐻
+       </div>
+<div>
+<strong>
+         버디 AI
+        </strong>
+<small>
+         학교생활을 돕는 작은 친구
+        </small>
+</div>
+<span aria-label="데모 활성" class="online">
+</span>
+</div>
+<div aria-live="polite" class="messages" id="messages">
+<div class="bubble bot welcome-message"><p>안녕! 나는 캠퍼스 버디야 🧸</p><p>학교생활에서 궁금한 걸 물어봐!</p><p>아래 예시 질문을 눌러도 좋아.</p></div>
+</div>
+<div class="chips">
+<button class="chip" data-question="휴학 신청하고 싶어">🌱 휴학 신청</button>
+<button class="chip" data-question="교환학생 신청하고 싶어">✈️ 교환학생 신청</button>
+<button class="chip" data-question="장학금 신청하고 싶어">🎓 장학금 신청</button>
+</div>
+<form class="composer" id="chat-form">
+<input aria-label="버디에게 질문하기" id="question" maxlength="180" placeholder="궁금한 걸 물어봐..." required=""/>
+<button aria-label="질문 보내기" type="submit">
+        ➜
+       </button>
+</form>
+<div class="demo-note">
+       이 채팅은 사전 제작된 시연이며 실제 학교 규정 조회 기능은 아직 제공되지 않습니다.
+      </div>
+</div></div><aside class="chat-sidebar"><span class="eyebrow">MY WORKSPACE</span><h2>질문은 버디에게,<br>일정은 플래너에서!</h2><p>자격을 분석하고 계획을 생성하면 나의 플래너에 저장돼요. 이전 대화의 일정도 계속 유지됩니다.</p><a class="btn" href="planner.html">🗓️ 내 플래너 보기 →</a><div class="sidebar-tip">✨ 예시 질문을 누르거나 직접 입력해 보세요.<br>※ 공지와 판정은 모두 시연용 가상 데이터입니다.</div></aside></section></main><footer class="footer">
+<div class="wrap">
+<span>
+     © 2026 캠퍼스 버디 · 서비스 콘셉트 검증용 프로토타입
+    </span>
+<span>
+     연세대학교 공식 서비스가 아닙니다.
+    </span>
+</div>
+</footer><script src="scenarios.js"></script><script src="visitor-tracking.js"></script><script src="script.js"></script></body></html>
